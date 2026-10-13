@@ -13,11 +13,24 @@ import AdminProfilePage from './components/admin/AdminProfilePage';
 import PostFormModal from './components/admin/PostFormModal';
 import CategoryModal from './components/admin/CategoryModal';
 import SupabaseModal from './components/admin/SupabaseModal';
+import InfoPage, { InfoPageType } from './components/InfoPage';
 import { getSupabaseClient, isSupabaseConfigured } from './lib/supabaseClient';
 import { INITIAL_USER_PROFILE } from './lib/initialData';
 
+export type AppView =
+  | 'home'
+  | 'post-detail'
+  | 'admin-login'
+  | 'admin-dashboard'
+  | 'admin-profile'
+  | 'tentang'
+  | 'kirim-karya'
+  | 'hak-cipta'
+  | 'kebijakan-privasi'
+  | 'kode-etik';
+
 export default function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'post-detail' | 'admin-login' | 'admin-dashboard' | 'admin-profile'>('home');
+  const [currentView, setCurrentView] = useState<AppView>('home');
   const [activeSlug, setActiveSlug] = useState<string>('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,6 +123,16 @@ export default function App() {
         setCurrentView(storageService.isAdminLoggedIn() ? 'admin-dashboard' : 'admin-login');
       } else if (hash === '#/admin/login') {
         setCurrentView('admin-login');
+      } else if (hash === '#/tentang' || hash === '#/about') {
+        setCurrentView('tentang');
+      } else if (hash === '#/kirim-karya' || hash === '#/pedoman') {
+        setCurrentView('kirim-karya');
+      } else if (hash === '#/hak-cipta' || hash === '#/copyright') {
+        setCurrentView('hak-cipta');
+      } else if (hash === '#/kebijakan-privasi' || hash === '#/privasi' || hash === '#/privacy') {
+        setCurrentView('kebijakan-privasi');
+      } else if (hash === '#/kode-etik' || hash === '#/guidelines' || hash === '#/etika') {
+        setCurrentView('kode-etik');
       } else {
         setCurrentView('home');
       }
@@ -127,7 +150,7 @@ export default function App() {
     setUserProfile(storageService.getProfile());
   };
 
-  const navigateTo = (view: 'home' | 'post-detail' | 'admin-login' | 'admin-dashboard' | 'admin-profile', param?: string) => {
+  const navigateTo = (view: AppView, param?: string) => {
     if (view === 'post-detail' && param) {
       setActiveSlug(param);
       window.location.hash = `#/blog/${param}`;
@@ -137,6 +160,16 @@ export default function App() {
       window.location.hash = '#/admin/dashboard';
     } else if (view === 'admin-login') {
       window.location.hash = '#/admin/login';
+    } else if (view === 'tentang') {
+      window.location.hash = '#/tentang';
+    } else if (view === 'kirim-karya') {
+      window.location.hash = '#/kirim-karya';
+    } else if (view === 'hak-cipta') {
+      window.location.hash = '#/hak-cipta';
+    } else if (view === 'kebijakan-privasi') {
+      window.location.hash = '#/kebijakan-privasi';
+    } else if (view === 'kode-etik') {
+      window.location.hash = '#/kode-etik';
     } else {
       window.location.hash = '';
     }
@@ -263,12 +296,17 @@ export default function App() {
     <div className="d-flex flex-column min-vh-100">
       <Navbar
         currentView={currentView}
-        onNavigate={(view) => navigateTo(view as any)}
+        onNavigate={(view, param) => navigateTo(view as AppView, param)}
         isAdmin={isAdmin}
         userProfile={userProfile}
         onLogout={handleLogout}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        categories={categories}
+        onSelectCategory={(catId) => {
+          setSelectedCategoryId(catId);
+          navigateTo('home');
+        }}
       />
 
       <main className="flex-grow-1">
@@ -416,11 +454,19 @@ export default function App() {
             onBackToHome={() => navigateTo('home')}
           />
         )}
+
+        {['tentang', 'kirim-karya', 'hak-cipta', 'kebijakan-privasi', 'kode-etik'].includes(currentView) && (
+          <InfoPage
+            pageType={currentView as InfoPageType}
+            onNavigate={navigateTo}
+            onBackToHome={() => navigateTo('home')}
+          />
+        )}
       </main>
 
       <Footer
-        onNavigateToHome={() => navigateTo('home')}
-        onNavigateToAdmin={() => navigateTo(isAdmin ? 'admin-dashboard' : 'admin-login')}
+        onNavigate={(view, param) => navigateTo(view as AppView, param)}
+        isAdmin={isAdmin}
       />
 
       {/* Modals */}
