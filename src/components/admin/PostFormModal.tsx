@@ -139,7 +139,7 @@ export default function PostFormModal({
                       <input
                         type="text"
                         className="form-control form-control-lg fw-bold"
-                        placeholder="Contoh: Menguasai Next.js App Router"
+                        placeholder="Contoh: Menelusuri Jejak Puitik Sastra Nusantara"
                         value={title}
                         onChange={(e) => handleTitleChange(e.target.value)}
                         required
@@ -153,7 +153,7 @@ export default function PostFormModal({
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="menguasai-nextjs-app-router"
+                          placeholder="menelusuri-jejak-puitik-sastra-nusantara"
                           value={slug}
                           onChange={(e) => setSlug(e.target.value)}
                           required

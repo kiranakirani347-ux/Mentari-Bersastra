@@ -13,7 +13,6 @@ import AdminProfilePage from './components/admin/AdminProfilePage';
 import PostFormModal from './components/admin/PostFormModal';
 import CategoryModal from './components/admin/CategoryModal';
 import SupabaseModal from './components/admin/SupabaseModal';
-import AdminProfileModal from './components/admin/AdminProfileModal';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'post-detail' | 'admin-login' | 'admin-dashboard' | 'admin-profile'>('home');
@@ -33,7 +32,6 @@ export default function App() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Initial load
   useEffect(() => {
@@ -204,7 +202,6 @@ export default function App() {
         onNavigate={(view) => navigateTo(view as any)}
         isAdmin={isAdmin}
         userProfile={userProfile}
-        onOpenProfileModal={() => setIsProfileModalOpen(true)}
         onLogout={handleLogout}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -230,23 +227,23 @@ export default function App() {
                   <div className="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
                     <div>
                       <h4 className="fw-bold mb-0 text-dark">
-                        {activeCategoryObject ? `Kategori: ${activeCategoryObject.name}` : 'Artikel Terkini'}
+                        {activeCategoryObject ? `Kategori: ${activeCategoryObject.name}` : 'Karya Sastra & Tulisan Terkini'}
                       </h4>
                       {searchQuery && (
                         <small className="text-muted">Hasil pencarian untuk "{searchQuery}"</small>
                       )}
                     </div>
-                    <span className="badge bg-secondary-subtle text-secondary-emphasis py-2 px-3">
-                      {filteredPublishedPosts.length} Artikel
+                    <span className="badge bg-warning-subtle text-warning-emphasis py-2 px-3 fw-semibold">
+                      {filteredPublishedPosts.length} Karya Terbit
                     </span>
                   </div>
 
                   {filteredPublishedPosts.length === 0 ? (
-                    <div className="card border-0 shadow-sm p-5 text-center bg-white my-3">
+                    <div className="card border-0 shadow-sm p-5 text-center bg-white my-3 rounded-4">
                       <i className="bi bi-search display-6 text-muted mb-3"></i>
-                      <h5 className="fw-bold text-dark">Tidak Ada Artikel Ditemukan</h5>
+                      <h5 className="fw-bold text-dark">Tidak Ada Karya Sastra Ditemukan</h5>
                       <p className="text-muted small mb-3">
-                        Coba ubah kata kunci pencarian atau pilih kategori lain.
+                        Coba gunakan kata kunci lain atau telusuri kategori sastra lainnya.
                       </p>
                       <div>
                         <button
@@ -380,13 +377,6 @@ export default function App() {
         categories={categories}
         onAddCategory={handleAddCategory}
         onDeleteCategory={handleDeleteCategory}
-      />
-
-      <AdminProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        profile={userProfile}
-        onSaveProfile={handleSaveProfile}
       />
 
       <SupabaseModal

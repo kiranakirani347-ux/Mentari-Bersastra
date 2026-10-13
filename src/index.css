@@ -1,14 +1,15 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-/* Kustomisasi gaya visual modern dengan Bootstrap 5 */
+/* Estetika Visual & Tipografi Sastra Mentari Bersastra */
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
-  color: #212529;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #fdfbf7;
+  color: #2b2825;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 #root {
@@ -21,78 +22,74 @@ main {
   flex: 1 0 auto;
 }
 
+/* Judul & Brand */
+h1, h2, h3, h4, h5, h6 {
+  color: #1e1b18;
+  letter-spacing: -0.02em;
+}
+
 /* Kartu artikel hover effect */
 .card-hover-effect {
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 0.75rem;
 }
 
 .card-hover-effect:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 0.75rem 1.75rem rgba(43, 40, 37, 0.08) !important;
 }
 
-/* Tipografi konten Markdown */
+/* Tipografi Konten Karya Sastra & Markdown */
 .markdown-body {
-  line-height: 1.85;
-  font-size: 1.1rem;
-  color: #2b3035;
+  line-height: 2;
+  font-size: 1.125rem;
+  font-family: 'Merriweather', Georgia, serif;
+  color: #2c2825;
 }
 
 .markdown-body h1,
 .markdown-body h2,
 .markdown-body h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   margin-bottom: 1rem;
-  color: #111827;
+  color: #1c1917;
 }
 
 .markdown-body p {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: justify;
 }
 
 .markdown-body img {
   max-width: 100%;
-  border-radius: 0.5rem;
-  margin: 1.5rem 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.markdown-body pre {
-  background-color: #1e293b;
-  color: #f8fafc;
-  padding: 1.25rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-size: 0.95rem;
-  margin: 1.5rem 0;
-}
-
-.markdown-body code:not(pre code) {
-  background-color: #e2e8f0;
-  color: #d63384;
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.25rem;
-  font-size: 0.9em;
+  border-radius: 0.75rem;
+  margin: 1.75rem 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .markdown-body blockquote {
-  border-left: 4px solid #0d6efd;
-  padding-left: 1.25rem;
-  color: #495057;
+  border-left: 4px solid #d97706;
+  padding: 1rem 1.5rem;
+  color: #451a03;
   font-style: italic;
-  margin: 1.5rem 0;
-  background-color: #f1f5f9;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0 0.375rem 0.375rem 0;
+  margin: 1.75rem 0;
+  background-color: #fef3c7;
+  border-radius: 0 0.5rem 0.5rem 0;
 }
 
 .markdown-body ul,
 .markdown-body ol {
-  padding-left: 1.75rem;
-  margin-bottom: 1.25rem;
+  padding-left: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .markdown-body li {
   margin-bottom: 0.5rem;
+}
+
+/* Custom shadow utilities */
+.shadow-xs {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }

@@ -134,10 +134,10 @@ export default function CategorySidebar({
       {/* Newsletter Widget */}
       <div className="card border-0 shadow-sm p-4 bg-primary-subtle text-dark rounded-3">
         <h6 className="fw-bold mb-2 d-flex align-items-center gap-2">
-          <i className="bi bi-envelope-paper-fill text-primary"></i> Berlangganan Buletin
+          <i className="bi bi-envelope-paper-fill text-warning-emphasis"></i> Surat Sastra Mingguan
         </h6>
         <p className="small text-secondary mb-3">
-          Dapatkan ringkasan artikel teknologi dan wawasan terpilih langsung ke email Anda setiap pekan.
+          Dapatkan kurasi sajak, fragmen cerpen pilihan, dan esai sastra nusantara langsung ke kotak masuk email Anda setiap akhir pekan.
         </p>
 
         {subscribed ? (

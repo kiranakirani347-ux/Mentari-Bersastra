@@ -67,7 +67,7 @@ export default function AdminDashboard({
           </button>
           <div className="d-flex align-items-center gap-3">
             <h2 className="fw-bold mb-0 text-dark">
-              <span>Dasbor Pengelola Blog</span>
+              <span>Dasbor Redaksi & Kurasi Sastra</span>
             </h2>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function AdminDashboard({
             onClick={onOpenProfileModal}
           >
             <img
-              src={userProfile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+              src={userProfile?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80'}
               alt="Avatar"
               className="rounded-circle object-fit-cover"
               style={{ width: '22px', height: '22px' }}
@@ -95,10 +95,10 @@ export default function AdminDashboard({
           </button>
 
           <button
-            className="btn btn-primary btn-sm fw-semibold"
+            className="btn btn-primary btn-sm fw-semibold shadow-xs"
             onClick={onOpenCreateModal}
           >
-            <i className="bi bi-plus-lg me-1"></i> Tulis Artikel Baru
+            <i className="bi bi-plus-lg me-1"></i> Tulis Karya Baru
           </button>
 
           <button

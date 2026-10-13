@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Folder Rencana Perbaikan Lokal
+perbaikan/

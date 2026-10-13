@@ -1,135 +1,190 @@
 import { Category, Post, UserProfile, Comment } from '../types/database';
 
 export const INITIAL_USER_PROFILE: UserProfile = {
-  id: 'usr-1',
-  name: 'Alex Pratama',
-  email: 'alex.pratama@modernblog.com',
-  role: 'Lead Technical Writer & Architect',
-  bio: 'Software engineer dengan pengalaman 8+ tahun dalam ekosistem Next.js, Cloud Computing, dan arsitektur data terdistribusi.',
-  avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-  website: 'https://alexpratama.dev',
-  github: 'https://github.com/alexpratama',
-  twitter: 'https://twitter.com/alexpratama',
+  id: 'usr-mentari-1',
+  name: 'Dewi Anjani',
+  email: 'dewi.anjani@mentaribersastra.id',
+  role: 'Pemimpin Redaksi & Kurator Sastra',
+  bio: 'Pencinta sastra nusantara, pegiat aksara, dan penikmat bait-bait puisi. Menulis untuk merawat keindahan bahasa, estetika rasa, dan refleksi batin manusia.',
+  avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+  website: 'https://mentaribersastra.id',
+  github: 'https://github.com/mentaribersastra',
+  twitter: 'https://twitter.com/mentaribersastra',
 };
 
 export const INITIAL_CATEGORIES: Category[] = [
   {
-    id: 'cat-1',
-    name: 'Web Development',
-    slug: 'web-development',
-    description: 'Panduan dan praktik terbaik teknologi web modern, frontend, dan backend.',
+    id: 'cat-puisi',
+    name: 'Sastra & Puisi',
+    slug: 'sastra-puisi',
+    description: 'Kumpulan bait sajak, antologi puisi kontemporer, dan renungan kata yang memantik ruang batin pembaca.',
     created_at: new Date('2025-01-01').toISOString(),
   },
   {
-    id: 'cat-2',
-    name: 'Cloud & Serverless',
-    slug: 'cloud-serverless',
-    description: 'Arsitektur cloud computing, Supabase, Vercel, dan infrastruktur modern.',
+    id: 'cat-prosa',
+    name: 'Prosa & Cerpen',
+    slug: 'prosa-cerpen',
+    description: 'Kisah fiksi pendek, fragmen kehidupan, dan cerita yang menyentuh nurani dan ragam dinamika kemanusiaan.',
     created_at: new Date('2025-01-02').toISOString(),
   },
   {
-    id: 'cat-3',
-    name: 'Desain & UI/UX',
-    slug: 'desain-ui-ux',
-    description: 'Prinsip desain antarmuka, aksesibilitas web, dan sistem desain Bootstrap 5.',
+    id: 'cat-esai',
+    name: 'Esai & Opini Literasi',
+    slug: 'esai-literasi',
+    description: 'Ulasan kritis, dialog kebudayaan, dan refleksi mendalam atas perkembangan literasi di era modern.',
     created_at: new Date('2025-01-03').toISOString(),
   },
   {
-    id: 'cat-4',
-    name: 'Artificial Intelligence',
-    slug: 'artificial-intelligence',
-    description: 'Perkembangan AI terkini, model bahasa besar, dan integrasi cerdas.',
+    id: 'cat-resensi',
+    name: 'Resensi Buku',
+    slug: 'resensi-buku',
+    description: 'Apresiasi dan tinjauan mendalam atas karya sastra terpilih, novel nusantara, dan karya penulis dunia.',
     created_at: new Date('2025-01-04').toISOString(),
+  },
+  {
+    id: 'cat-budaya',
+    name: 'Jejak Budaya',
+    slug: 'jejak-budaya',
+    description: 'Menelusuri khazanah folklor nusantara, kearifan tutur daerah, serta tradisi sastra lisan Indonesia.',
+    created_at: new Date('2025-01-05').toISOString(),
   },
 ];
 
 export const INITIAL_POSTS: Post[] = [
   {
-    id: 'post-1',
-    title: 'Membangun Arsitektur Blog Modern dengan Next.js App Router dan Supabase',
-    slug: 'membangun-arsitektur-blog-modern-dengan-nextjs-app-router-dan-supabase',
-    excerpt: 'Pelajari bagaimana menggabungkan Next.js App Router dengan Supabase PostgreSQL dan Bootstrap 5 untuk performa maksimal di Vercel.',
-    content: `# Membangun Arsitektur Blog Modern dengan Next.js App Router dan Supabase
+    id: 'post-sastra-1',
+    title: 'Hujan di Sudut Kota dan Kenangan yang Tertinggal di Cangkir Kopi',
+    slug: 'hujan-di-sudut-kota-dan-kenangan-yang-tertinggal-di-cangkir-kopi',
+    excerpt: 'Sebuah fragmen prosa tentang pertemuan yang tak direncanakan, aroma tanah basah, dan bait percakapan yang selesai sebelum senja tanggal.',
+    content: `# Hujan di Sudut Kota dan Kenangan yang Tertinggal di Cangkir Kopi
 
-Dalam beberapa tahun terakhir, ekosistem web telah berkembang pesat menuju arsitektur yang lebih ramping dan efisien. Menggabungkan **Next.js App Router**, **Supabase**, dan **Bootstrap 5** memberikan kombinasi luar biasa antara kecepatan pengembangan dan stabilitas produksi.
+Gerimis turun tanpa permisi di ujung Jalan Malioboro. Langit abu-abu menggantung rendah, membiaskan cahaya lampu jalanan yang baru saja menyala temaram. Di balik kaca kedai tua yang mulai berembun, cangkir kopi hitam mengepulkan aroma sangrai robusta yang hangat.
 
-## Mengapa Next.js App Router?
-Next.js App Router menghadirkan *React Server Components* (RSC) secara bawaan:
-- **Zero-Bundle Sisi Klien**: Komponen yang hanya merender data tidak mengirimkan JavaScript tambahan ke browser pengguna.
-- **Incremental Static Regeneration (ISR)**: Caching halaman dinamis dengan \`revalidate\` memastikan artikel disajikan secepat situs statis tanpa membebani database.
-- **Streaming SSR**: Pengalaman pengguna tetap mulus dengan transisi loading skeleton otomatis.
+## Pertemuan yang Menepi
 
-## Integrasi Database & Auth dengan Supabase
-Supabase menyediakan seluruh backend yang kita butuhkan:
-1. **PostgreSQL Relasional**: Performa query tinggi dan integritas data terjamin.
-2. **Row Level Security (RLS)**: Keamanan data ditegakkan langsung di level database sehingga API publik tidak bisa memodifikasi artikel sembarangan.
-3. **Supabase Storage**: Bucket penyimpanan aset gambar dengan CDN global terdistribusi.
+Ada orang-orang yang hadir dalam hidup kita seperti rintik hujan pertama di musim kemarau: datang tiba-tiba, mengejutkan tanah yang tandus, lalu menyisakan aroma basah yang bertahan berminggu-minggu dalam ingatan.
 
-\`\`\`sql
--- Contoh RLS Policy untuk keamanan artikel
-CREATE POLICY "Public can view published posts"
-ON public.posts FOR SELECT
-USING (published = true);
-\`\`\`
+> *"Kadang-kadang, yang kita rindukan bukanlah orangnya, melainkan bagaimana perasaan kita saat duduk bersamanya di tengah derasnya dunia yang bising."*
 
-## Kesimpulan
-Dengan arsitektur ini, website blog Anda siap menangani jutaan kunjungan dengan biaya infrastruktur yang sangat efisien di Vercel.`,
-    featured_image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-    category_id: 'cat-1',
-    author_name: 'Alex Pratama',
+Dua pasang mata bertemu tanpa prasangka. Percakapan mengalir santai—tentang buku usang yang tergeletak di meja, tentang bait puisi Sapardi yang tercecer di saku jaket, dan tentang cita-cita sederhana yang sering kali terlibas oleh rutinitas kota metropolitan.
+
+## Mengapa Kenangan Menetap?
+
+Kenangan memiliki cara unik untuk menenun dirinya sendiri:
+1. **Melalui Aroma**: Harum seduhan kopi dan tanah basah setelah gerimis (petrikor).
+2. **Melalui Nada**: Gemerincing sendok kecil beradu dengan cangkir porselen putih.
+3. **Melalui Keheningan**: Detik-detik jeda saat dua orang saling memandang dan memahami tanpa perlu sepatah kata pun terucap.
+
+Hujan akhirnya reda, meninggalkan genangan air kecil yang memantulkan kerlip lampu kota. Cangkir kopi telah mendingin, namun kehangatan di dada tetap tinggal. Kita melangkah ke arah yang berbeda, menyadari bahwa hidup adalah tentang keberanian untuk menyimpan keindahan, meski ia hanya berlangsung sepenggal senja.`,
+    featured_image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
+    category_id: 'cat-prosa',
+    author_name: 'Dewi Anjani',
     published: true,
-    views: 1420,
+    views: 1845,
     reading_time: '4 menit baca',
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
   },
   {
-    id: 'post-2',
-    title: 'Panduan Praktis Bootstrap 5: Elegan Tanpa Ketergantungan Utilitas Rumit',
-    slug: 'panduan-praktis-bootstrap-5-elegan-tanpa-ketergantungan-utilitas-rumit',
-    excerpt: 'Mengapa Bootstrap 5 tetap menjadi pilihan terpercaya para insinyur perangkat lunak untuk dashboard dan aplikasi responsif skala enterprise.',
-    content: `# Panduan Praktis Bootstrap 5: Elegan Tanpa Ketergantungan Utilitas Rumit
+    id: 'post-sastra-2',
+    title: 'Membaca Ulang Sajak Chairil Anwar: Mengapa Api Eksistensialisme Tak Pernah Padam?',
+    slug: 'membaca-ulang-sajak-chairil-anwar-mengapa-api-eksistensialisme-tak-pernah-padam',
+    excerpt: 'Menelisik kedalaman sajak "Aku" dan "Derai-Derai Cemara", serta bagaimana keberanian estetik Chairil mendobrak kemapanan sastra Indonesia.',
+    content: `# Membaca Ulang Sajak Chairil Anwar: Mengapa Api Eksistensialisme Tak Pernah Padam?
 
-Banyak developer mengira Bootstrap adalah masa lalu. Kenyataannya, **Bootstrap 5** telah menulis ulang core framework-nya tanpa jQuery, menggunakan CSS Custom Properties (variabel CSS), dan sistem grid flexbox yang sangat matang.
+Chairil Anwar bukan sekadar pelopor Angkatan '45; ia adalah letupan kesadaran individual dalam lanskap sastra Indonesia yang saat itu masih lekat dengan romantisisme Pujangga Baru yang mendayu-dayu.
 
-## Keunggulan Utama Bootstrap 5
-- **Tanpa jQuery**: Ringan dan ramah framework modern seperti React dan Next.js.
-- **Sistem Grid 12 Kolom**: Responsivitas teruji untuk tablet, mobile, dan layar desktop besar.
-- **Komponen Standar Kaya**: Modal, alert, card, dropdown, dan badge yang mudah diakses (a11y).
+## Keberanian Menggugat Batas Kata
 
-> "Bootstrap memungkinkan tim teknik fokus pada logika bisnis dan alur data tanpa perlu menghabiskan waktu merancang ulang tombol dari nol."
+Saat Chairil menulis *“Kalau sampai waktuku, 'ku mau tak seorang 'kan merayu”*, ia tidak sedang merajuk. Ia menyatakan sikap eksistensial yang radikal: manusia berhadapan langsung dengan kefanaan dirinya sendiri tanpa topeng kemunafikan sosial.
 
-## Tips Menghindari Hydration Error di SSR
-Pastikan memuat file JavaScript bundle secara dinamis di sisi klien menggunakan \`useEffect\` agar tidak memicu error \`document is not defined\`.`,
-    featured_image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
-    category_id: 'cat-3',
-    author_name: 'Siti Rahma',
+Bahasa Indonesia di tangan Chairil berubah dari bahasa yang seremonial menjadi pisau bedah jiwa yang tajam dan berotot:
+- **Ketegasan Diksi**: Mengikis metafora berbunga-bunga yang klise.
+- **Irama Batin**: Sajak tidak terikat pola rima mati, melainkan denyut nadi dan degup jantung sang penyair.
+- **Kejujuran Emosi**: Berani mengakui luka, kelemahan, dan rasa kesepian yang paling purba.
+
+## Warisan untuk Generasi Literasi Modern
+
+> *"Hidup hanya menunda kekalahan, tambah terasing dari cinta sekolah rendah, dan tahu, ada yang tetap tidak diucapkan, sebelum pada akhirnya kita menyerah."* — Chairil Anwar, Derai-Derai Cemara (1949)
+
+Dalam era banjir informasi digital di mana ribuan kata diketik setiap detiknya tanpa ruh, sajak-sajak Chairil mengingatkan kita bahwa setiap kata harus memiliki bobot darah dan kejujuran rasa. Sastra bukanlah hiasan dinding, melainkan api yang harus terus dinyalakan di rongga dada anak-anak zaman.`,
+    featured_image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80',
+    category_id: 'cat-esai',
+    author_name: 'Bagus Wicaksono',
     published: true,
-    views: 980,
+    views: 2690,
+    reading_time: '6 menit baca',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+  {
+    id: 'post-sastra-3',
+    title: 'Antologi Senja: Kumpulan Bait tentang Sunyi, Waktu, dan Asa yang Bersemi',
+    slug: 'antologi-senja-kumpulan-bait-tentang-sunyi-waktu-dan-asa-yang-bersemi',
+    excerpt: 'Di antara jingga yang luruh dan malam yang mengetuk jendela, bait-bait ini ditulis untuk merayakan keheningan yang paling jujur.',
+    content: `# Antologi Senja: Kumpulan Bait tentang Sunyi, Waktu, dan Asa yang Bersemi
+
+### I. Pukul Enam Sore
+Langit menumpahkan jingganya ke pangkuan kota,  
+seperti cat air yang tumpah di kertas buram anak sekolah.  
+Di kejauhan, burung-burung camar mencari dahan terakhir,  
+sementara kita masih sibuk mencari kata yang tak sempat terucap.
+
+### II. Di Batas Keheningan
+Kau bilang, sunyi adalah musuh orang-orang yang patah hati.  
+Namun malam ini, aku menemukan bahwa sunyi adalah sahabat terbaik  
+yang sudi mendengarkan detak jam dinding  
+tanpa menghakimi mengapa air mata masih saja menetes pelan.
+
+> *"Jangan padamkan lentera di dadamu,  
+meski angin malam meniupnya berkali-kali.  
+Sebab esok fajar akan tiba,  
+dan kata-kata yang kau simpan akan menemukan pendengarnya."*
+
+### III. Janji Mentari
+Pada setiap helai daun yang gugur di beranda,  
+tersimpan kabar bahwa perpisahan hanyalah cara bumi beristirahat.  
+Mentari bersastra dalam bahasa cahaya,  
+mengingatkan bahwa yang remuk redam pun  
+selalu berhak menyambut pagi dengan bait baru.`,
+    featured_image: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=1200&q=80',
+    category_id: 'cat-puisi',
+    author_name: 'Kirana Larasati',
+    published: true,
+    views: 3120,
     reading_time: '3 menit baca',
-    created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
   },
   {
-    id: 'post-3',
-    title: 'Menerapkan Serverless Storage dan RLS Supabase untuk Pengelolaan Media Blog',
-    slug: 'menerapkan-serverless-storage-dan-rls-supabase-untuk-pengelolaan-media-blog',
-    excerpt: 'Cara aman mengatur bucket penyimpanan gambar, membatasi upload hanya untuk admin terotentikasi, dan menyajikan gambar secara publik.',
-    content: `# Menerapkan Serverless Storage dan RLS Supabase untuk Pengelolaan Media Blog
+    id: 'post-sastra-4',
+    title: 'Menyelami Martabat Manusia dalam Roman "Bumi Manusia": Sebuah Catatan Apresiasi',
+    slug: 'menyelami-martabat-manusia-dalam-roman-bumi-manusia-sebuah-catatan-apresiasi',
+    excerpt: 'Bagaimana Pramoedya Ananta Toer merajut martabat kemanusiaan, cinta Minke dan Annelies, serta pergulatan keadilan di masa kolonial.',
+    content: `# Menyelami Martabat Manusia dalam Roman "Bumi Manusia": Sebuah Catatan Apresiasi
 
-Mengelola unggahan file pengguna sering kali menjadi celah keamanan jika tidak dikonfigurasi dengan benar. Supabase Storage menyelesaikan masalah ini dengan mengintegrasikan sistem file langsung dengan Postgres RLS.
+Membaca kembali tetralogi Buru, khususnya novel pertama *Bumi Manusia*, selalu membawa debar yang tak pernah pudar. Ditulis dari balik jeruji pembuangan Pulau Buru, Pramoedya Ananta Toer melahirkan salah satu mahakarya sastra terbesar yang pernah ditulis dalam bahasa Indonesia.
 
-## Tiga Lapisan Pengamanan Media:
-1. **Public Read Bucket**: Pengunjung umum dapat memuat gambar dengan URL CDN publik.
-2. **Authenticated Upload Only**: Hanya user dengan token autentikasi valid yang diizinkan mengunggah file baru.
-3. **File MIME-Type Restriction**: Membatasi format file hanya untuk \`image/jpeg\`, \`image/png\`, dan \`image/webp\`.
+## Sosok Minke dan Nyai Ontosoroh
 
-Dengan langkah ini, penyimpanan aset media Anda aman dari eksploitasi dan siap digunakan di lingkungan produksi Vercel.`,
-    featured_image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
-    category_id: 'cat-2',
-    author_name: 'Budi Santoso',
+Kekuatan utama *Bumi Manusia* terletak pada kedalaman karakternya:
+- **Minke**: Pemuda pribumi terpelajar yang merangkak keluar dari feodalisme Jawa menuju pencerahan modernitas dengan pena sebagai senjatanya.
+- **Nyai Ontosoroh (Sanikem)**: Simbol ketabahan dan perlawanan luar biasa dari seorang perempuan yang dijual oleh keluarganya sendiri, namun bangkit menjadi perempuan mandiri yang menguasai hukum dan perdagangan kolonial.
+
+> *"Seorang terpelajar harus sudah berbuat adil sejak dalam pikiran, apalagi dalam perbuatan."* — Pesan legendaris Jean Marais kepada Minke.
+
+## Sastra sebagai Pembela Kaum Tertindas
+
+Bagi Pramoedya, sastra bukan pelarian dari kenyataan pahit, melainkan instrumen untuk menegakkan martabat manusia (*human dignity*). Roman ini mengajarkan kita bahwa kekalahan fisik bukanlah akhir dari segalanya, selama jiwa perlawanan terhadap ketidakadilan tetap berkobar:
+
+*“Kita telah melawan, Minke, sebaik-baiknya, sehormat-hormatnya!”* seru Nyai Ontosoroh di penghujung kisah saat Annelies direnggut secara paksa.
+
+Sebuah karya agung yang abadi dan wajib dibaca oleh setiap penikmat literasi nusantara.`,
+    featured_image: 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&w=1200&q=80',
+    category_id: 'cat-resensi',
+    author_name: 'Rendra Mahardika',
     published: true,
-    views: 654,
+    views: 4210,
     reading_time: '5 menit baca',
     created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
     updated_at: new Date(Date.now() - 86400000 * 7).toISOString(),
@@ -138,17 +193,24 @@ Dengan langkah ini, penyimpanan aset media Anda aman dari eksploitasi dan siap d
 
 export const INITIAL_COMMENTS: Comment[] = [
   {
-    id: 'cm-1',
-    post_id: 'post-1',
-    author_name: 'Dian Nugraha',
-    content: 'Artikel yang sangat membuka wawasan! Pendekatan ISR di Next.js App Router memang terasa jauh lebih cepat untuk pembaca.',
+    id: 'cm-sastra-1',
+    post_id: 'post-sastra-1',
+    author_name: 'Laras Sekar',
+    content: 'Membaca prosa ini rasanya seperti kembali mencium wangi kopi dan gerimis sore di Yogyakarta. Pilihan kata yang sangat hangat dan menyentuh.',
     created_at: new Date(Date.now() - 86400000).toISOString(),
   },
   {
-    id: 'cm-2',
-    post_id: 'post-1',
-    author_name: 'Farhan Pratama',
-    content: 'Terima kasih atas penjelasan konfigurasi RLS-nya. Sangat aplikatif untuk proyek saya.',
+    id: 'cm-sastra-2',
+    post_id: 'post-sastra-2',
+    author_name: 'Faisal Hakim',
+    content: 'Analisis yang tajam atas sajak Chairil. Eksistensialisme Chairil memang otentik dan sangat relevan untuk refleksi kita di zaman serba bising saat ini.',
     created_at: new Date(Date.now() - 43200000).toISOString(),
+  },
+  {
+    id: 'cm-sastra-3',
+    post_id: 'post-sastra-3',
+    author_name: 'Nadia Prameswari',
+    content: 'Bait penutupnya memberi pengharapan yang indah. Terima kasih Mentari Bersastra atas puisi-puisi yang menyejukkan hati.',
+    created_at: new Date(Date.now() - 20000000).toISOString(),
   },
 ];

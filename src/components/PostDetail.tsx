@@ -139,11 +139,11 @@ export default function PostDetail({
           />
           <div className="flex-grow-1">
             <h6 className="fw-bold mb-0 text-dark">{authorProfile?.name || post.author_name || 'Tim Redaksi'}</h6>
-            <small className="text-primary fw-semibold d-block mb-1">
-              {authorProfile?.role || 'Kontributor Teknis'}
+            <small className="text-warning-emphasis fw-semibold d-block mb-1">
+              {authorProfile?.role || 'Kurator & Penulis Sastra'}
             </small>
             <p className="small text-muted mb-0">
-              {authorProfile?.bio || 'Menulis tentang arsitektur perangkat lunak, sistem berbasis web modern, dan pengalaman pengembang.'}
+              {authorProfile?.bio || 'Menulis untuk merawat keindahan bahasa, kejernihan nurani, dan estetika sastra nusantara.'}
             </p>
           </div>
         </div>

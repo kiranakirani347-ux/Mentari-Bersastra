@@ -1,6 +1,6 @@
 {
-  "name": "Modern Blog Engine",
-  "description": "Modern full-stack blog platform built with Next.js, Bootstrap 5, and Supabase.",
+  "name": "Mentari Bersastra",
+  "description": "Ruang publikasi dan literasi sastra modern yang dibangun dengan React 19, Vite, Bootstrap 5, dan Supabase.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
