@@ -1,71 +1,119 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+export interface SupabaseConfigStatus {
+  url: string;
+  anonKey: string;
+  isConfigured: boolean;
+  source: 'vercel_env' | 'local_override' | 'none';
+}
+
 /**
  * Mengambil konfigurasi kredensial Supabase.
- * Mengutamakan variabel lingkungan Vite, dengan kemampuan override melalui pengaturan lokal.
+ * Mengutamakan variabel lingkungan Vite, dengan kemampuan override melalui pengaturan lokal (localStorage).
  */
-export const getSupabaseConfig = (): { url: string; anonKey: string; isConfigured: boolean } => {
-  const envUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
-  const envKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
-
+export const getSupabaseConfig = (): SupabaseConfigStatus => {
   const customUrl = (typeof window !== 'undefined' ? localStorage.getItem('custom_supabase_url') : '') || '';
   const customKey = (typeof window !== 'undefined' ? localStorage.getItem('custom_supabase_key') : '') || '';
 
-  const activeUrl = (customUrl.trim() || envUrl.trim());
-  const activeKey = (customKey.trim() || envKey.trim());
+  if (customUrl.trim() && customKey.trim() && customUrl.startsWith('http')) {
+    return {
+      url: customUrl.trim(),
+      anonKey: customKey.trim(),
+      isConfigured: true,
+      source: 'local_override',
+    };
+  }
+
+  const envUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+  const envKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
+
+  if (envUrl.trim() && envKey.trim() && envUrl.startsWith('http')) {
+    return {
+      url: envUrl.trim(),
+      anonKey: envKey.trim(),
+      isConfigured: true,
+      source: 'vercel_env',
+    };
+  }
 
   return {
-    url: activeUrl,
-    anonKey: activeKey,
-    isConfigured: Boolean(activeUrl && activeKey && activeUrl.startsWith('http')),
+    url: '',
+    anonKey: '',
+    isConfigured: false,
+    source: 'none',
   };
 };
 
-const config = getSupabaseConfig();
+let activeClient: SupabaseClient | null = null;
 
-/**
- * Singleton client Supabase untuk browser.
- * Bernilai null jika belum dikonfigurasi.
- */
-export const supabase: SupabaseClient | null = config.isConfigured
-  ? createClient(config.url, config.anonKey, {
+export const getSupabaseClient = (): SupabaseClient | null => {
+  const currentConfig = getSupabaseConfig();
+  if (!currentConfig.isConfigured) {
+    activeClient = null;
+    return null;
+  }
+
+  if (!activeClient) {
+    activeClient = createClient(currentConfig.url, currentConfig.anonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
-    })
-  : null;
+    });
+  }
+  return activeClient;
+};
+
+// Singleton export
+export const supabase = getSupabaseClient();
 
 /**
  * Memeriksa apakah Supabase siap digunakan.
  */
 export const isSupabaseConfigured = (): boolean => {
-  return supabase !== null;
+  return getSupabaseConfig().isConfigured;
 };
 
 /**
  * Menguji koneksi langsung ke Supabase Cloud.
  */
-export const testSupabaseConnection = async (): Promise<{ success: boolean; message: string }> => {
-  if (!supabase) {
+export const testSupabaseConnection = async (): Promise<{ success: boolean; message: string; config: SupabaseConfigStatus }> => {
+  const currentConfig = getSupabaseConfig();
+  const client = getSupabaseClient();
+
+  if (!client || !currentConfig.isConfigured) {
     return {
       success: false,
-      message: 'Kredensial Supabase belum terkonfigurasi pada Environment Variables Vercel atau Pengaturan.',
+      message: 'Kredensial Supabase belum terdeteksi. Silakan periksa Environment Variables di Vercel (lalu Redeploy) atau masukkan lewat modal pengaturan.',
+      config: currentConfig,
     };
   }
 
   try {
-    const { error } = await supabase.from('categories').select('id').limit(1);
-    if (error) throw error;
+    // Uji kueri ringan ke tabel categories atau auth check
+    const { error } = await client.from('categories').select('id').limit(1);
+    if (error) {
+      // Jika tabel belum dibuat, periksa apakah koneksi auth berhasil
+      if (error.code === '42P01') { // relation does not exist
+        return {
+          success: true,
+          message: `Koneksi ke Supabase Cloud (${currentConfig.url}) BERHASIL! Namun skrip SQL 'supabase_schema_fix.sql' belum dieksekusi di SQL Editor Supabase.`,
+          config: currentConfig,
+        };
+      }
+      throw error;
+    }
     return {
       success: true,
-      message: 'Koneksi ke database Supabase Cloud terverifikasi aktif!',
+      message: `Terhubung sempurna ke Supabase Cloud (${currentConfig.url})! Database siap digunakan.`,
+      config: currentConfig,
     };
   } catch (err: any) {
     return {
       success: false,
-      message: err.message || 'Gagal terhubung ke database Supabase Cloud.',
+      message: err.message || 'Gagal menghubungi server database Supabase.',
+      config: currentConfig,
     };
   }
 };

@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { storageService } from '../../lib/storageService';
-import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
+import {
+  getSupabaseClient,
+  getSupabaseConfig,
+  isSupabaseConfigured,
+  testSupabaseConnection,
+} from '../../lib/supabaseClient';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -9,6 +14,24 @@ interface AdminLoginProps {
 
 export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginProps) {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+
+  // Status Diagnostik Supabase
+  const [connectionStatus, setConnectionStatus] = useState<{
+    tested: boolean;
+    success: boolean;
+    message: string;
+    loading: boolean;
+  }>({
+    tested: false,
+    success: false,
+    message: '',
+    loading: false,
+  });
+
+  const [config, setConfig] = useState(getSupabaseConfig());
+  const [showManualConfig, setShowManualConfig] = useState(false);
+  const [manualUrl, setManualUrl] = useState(config.url || '');
+  const [manualKey, setManualKey] = useState(config.anonKey || '');
 
   // Login State
   const [loginEmail, setLoginEmail] = useState('');
@@ -25,6 +48,36 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
   const [regLoading, setRegLoading] = useState(false);
   const [regNotice, setRegNotice] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
 
+  // Uji koneksi saat komponen pertama kali dimuat
+  useEffect(() => {
+    runConnectionTest();
+  }, []);
+
+  const runConnectionTest = async () => {
+    setConnectionStatus((prev) => ({ ...prev, loading: true }));
+    const result = await testSupabaseConnection();
+    setConnectionStatus({
+      tested: true,
+      success: result.success,
+      message: result.message,
+      loading: false,
+    });
+    setConfig(getSupabaseConfig());
+  };
+
+  const handleSaveManualConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (manualUrl.trim() && manualKey.trim()) {
+      localStorage.setItem('custom_supabase_url', manualUrl.trim());
+      localStorage.setItem('custom_supabase_key', manualKey.trim());
+    } else {
+      localStorage.removeItem('custom_supabase_url');
+      localStorage.removeItem('custom_supabase_key');
+    }
+    setShowManualConfig(false);
+    window.location.reload();
+  };
+
   // Handle Login
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,29 +86,56 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
 
     const email = loginEmail.trim();
     const password = loginPassword;
+    const client = getSupabaseClient();
 
-    // 1. Coba lewat Supabase jika kredensial aktif
-    if (isSupabaseConfigured() && supabase) {
+    // 1. Coba lewat Supabase jika aktif
+    if (client && isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await client.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (!error && data.session) {
+        if (error) {
+          // Tangkap pesan error spesifik dari Supabase
+          if (error.message.includes('Email not confirmed')) {
+            setLoginError('Email belum dikonfirmasi di Supabase. Silakan periksa inbox email Anda atau matikan "Confirm Email" di Supabase Dashboard (Auth > Providers > Email).');
+            setLoginLoading(false);
+            return;
+          }
+          if (error.message.includes('Invalid login credentials')) {
+            setLoginError('Email atau kata sandi salah menurut server Supabase Cloud.');
+            setLoginLoading(false);
+            return;
+          }
+          setLoginError(`Supabase Auth: ${error.message}`);
+          setLoginLoading(false);
+          return;
+        }
+
+        if (data.session) {
           storageService.setAdminLoggedIn(true);
+          // Ambil nama profil dari auth metadata jika ada
+          const userName = data.user?.user_metadata?.name || email.split('@')[0];
+          storageService.saveProfile({
+            id: data.user.id,
+            name: userName,
+            email: email,
+            role: data.user?.user_metadata?.role || 'Pengelola Redaksi',
+            bio: 'Pengguna terverifikasi Supabase Cloud.',
+            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}&backgroundColor=b6e3f4,c0aede,d1d4f9`,
+          });
           onLoginSuccess();
           return;
-        } else if (error) {
-          // Jika gagal di Supabase, coba cek apakah user ada di data pengguna lokal
-          console.warn('Supabase login:', error.message);
         }
       } catch (err: any) {
-        console.warn('Supabase login exception:', err.message);
+        setLoginError(`Koneksi Supabase bermasalah: ${err.message}`);
+        setLoginLoading(false);
+        return;
       }
     }
 
-    // 2. Cek pengguna lokal (termasuk yang baru saja didaftarkan di tab registrasi)
+    // 2. Fallback Pengguna Lokal (jika Supabase belum aktif / mode offline)
     const registeredUsers = storageService.getRegisteredUsers();
     const foundUser = registeredUsers.find(
       (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
@@ -63,7 +143,6 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
 
     if (foundUser) {
       storageService.setAdminLoggedIn(true);
-      // Perbarui profil aktif ke user yang baru login
       storageService.saveProfile({
         id: foundUser.id,
         name: foundUser.name,
@@ -76,14 +155,14 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
       return;
     }
 
-    // 3. Fallback demo admin jika belum ada user lain
+    // 3. Fallback Akun Demo
     if (email === 'admin@mentaribersastra.id' && password === 'admin123456') {
       storageService.setAdminLoggedIn(true);
       onLoginSuccess();
       return;
     }
 
-    setLoginError('Email atau kata sandi tidak cocok. Silakan periksa kembali atau buat akun baru.');
+    setLoginError('Akun tidak ditemukan. Pastikan email & kata sandi benar atau buat akun baru di tab Registrasi.');
     setLoginLoading(false);
   };
 
@@ -110,6 +189,36 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
     setRegLoading(true);
 
     try {
+      const client = getSupabaseClient();
+      let supabaseMessage = '';
+
+      // Daftar ke Supabase Auth
+      if (client && isSupabaseConfigured()) {
+        const { data, error } = await client.auth.signUp({
+          email: regEmail.trim().toLowerCase(),
+          password: regPassword,
+          options: {
+            data: {
+              name: regName.trim(),
+              role: regRole,
+            },
+          },
+        });
+
+        if (error) {
+          setRegNotice({ type: 'danger', message: `Supabase Auth Error: ${error.message}` });
+          setRegLoading(false);
+          return;
+        }
+
+        if (data.user && !data.session) {
+          supabaseMessage = ' (Konfirmasi email dikirimkan oleh Supabase. Jika fitur "Confirm Email" aktif, cek kotak masuk email Anda).';
+        } else {
+          supabaseMessage = ' (Tersinkron langsung ke Supabase Cloud).';
+        }
+      }
+
+      // Simpan juga ke cache pengguna lokal
       const result = await storageService.registerUser({
         name: regName,
         email: regEmail,
@@ -120,20 +229,17 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
       if (result.success) {
         setRegNotice({
           type: 'success',
-          message: `${result.message} Silakan masuk menggunakan akun baru Anda.`,
+          message: `${result.message}${supabaseMessage}`,
         });
-        // Siapkan email di form login
         setLoginEmail(regEmail);
         setLoginPassword(regPassword);
-        // Reset form registrasi
         setRegName('');
         setRegEmail('');
         setRegPassword('');
         setRegConfirmPassword('');
-        // Pindah ke tab login
         setTimeout(() => {
           setActiveTab('login');
-        }, 1200);
+        }, 1500);
       } else {
         setRegNotice({ type: 'danger', message: result.message });
       }
@@ -151,18 +257,98 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
 
   return (
     <div className="d-flex align-items-center justify-content-center py-5 px-3 min-vh-75">
-      <div className="card border-0 shadow-lg p-3 p-md-4 rounded-4" style={{ maxWidth: '480px', width: '100%' }}>
+      <div className="card border-0 shadow-lg p-3 p-md-4 rounded-4" style={{ maxWidth: '520px', width: '100%' }}>
         {/* Brand Header */}
         <div className="text-center mb-3">
-          <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex p-3 mb-2 shadow-xs">
+          <div className="bg-warning-subtle text-warning-emphasis rounded-circle d-inline-flex p-3 mb-2 shadow-xs border border-warning-subtle">
             <i className="bi bi-feather fs-3"></i>
           </div>
           <h4 className="fw-bold mb-1 text-dark">Portal Pengguna & Redaksi</h4>
           <p className="text-muted small">Mentari Bersastra — Ruang Karya & Literasi Nusantara</p>
         </div>
 
+        {/* Indikator Status Koneksi Supabase */}
+        <div className="card border-0 bg-light p-3 rounded-3 mb-3">
+          <div className="d-flex align-items-center justify-content-between mb-1">
+            <span className="small fw-bold text-dark d-flex align-items-center gap-2">
+              <i className="bi bi-broadcast text-primary"></i> Status Database:
+            </span>
+            <button
+              type="button"
+              className="btn btn-link btn-sm p-0 text-decoration-none small"
+              onClick={runConnectionTest}
+              disabled={connectionStatus.loading}
+            >
+              {connectionStatus.loading ? (
+                <span><span className="spinner-border spinner-border-sm me-1"></span>Menguji...</span>
+              ) : (
+                <span><i className="bi bi-arrow-clockwise me-1"></i>Uji Ulang</span>
+              )}
+            </button>
+          </div>
+
+          <div className="d-flex align-items-start gap-2 mt-1">
+            <span className={`badge ${connectionStatus.success ? 'bg-success' : 'bg-warning text-dark'} py-1 px-2 mt-1`}>
+              {connectionStatus.success ? 'TERHUBUNG KE CLOUD' : 'OFFLINE / LOCAL CACHE'}
+            </span>
+            <div className="small text-secondary flex-grow-1" style={{ fontSize: '0.8rem', lineHeight: 1.4 }}>
+              {connectionStatus.tested ? (
+                connectionStatus.message
+              ) : (
+                'Memeriksa ketersediaan Environment Variables...'
+              )}
+            </div>
+          </div>
+
+          {/* Opsi Pengaturan Kredensial Manual jika Vercel belum redeploy */}
+          <div className="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+            <span className="text-muted" style={{ fontSize: '0.75rem' }}>
+              Sumber: {config.source === 'vercel_env' ? 'Vercel Env' : config.source === 'local_override' ? 'Browser Override' : 'Belum Terisi'}
+            </span>
+            <button
+              type="button"
+              className="btn btn-link btn-sm p-0 text-primary small text-decoration-none"
+              style={{ fontSize: '0.75rem' }}
+              onClick={() => setShowManualConfig(!showManualConfig)}
+            >
+              <i className="bi bi-sliders me-1"></i>
+              {showManualConfig ? 'Tutup Pengaturan Kredensial' : 'Isi Kredensial di Browser'}
+            </button>
+          </div>
+
+          {showManualConfig && (
+            <form onSubmit={handleSaveManualConfig} className="mt-3 pt-2 border-top">
+              <div className="mb-2">
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Supabase URL</label>
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="https://xxx.supabase.co"
+                  value={manualUrl}
+                  onChange={(e) => setManualUrl(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-2">
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Supabase Anon Key</label>
+                <input
+                  type="password"
+                  className="form-control form-control-sm"
+                  placeholder="eyJhbGciOi..."
+                  value={manualKey}
+                  onChange={(e) => setManualKey(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary btn-sm w-100 py-1 mt-1">
+                Simpan & Muat Ulang Browser
+              </button>
+            </form>
+          )}
+        </div>
+
         {/* Tab Navigasi: Masuk vs Registrasi */}
-        <ul className="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-4">
+        <ul className="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-3">
           <li className="nav-item">
             <button
               className={`nav-link py-2 fw-semibold small ${activeTab === 'login' ? 'active shadow-xs' : 'text-muted'}`}
@@ -184,7 +370,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                 setRegNotice(null);
               }}
             >
-              <i className="bi bi-person-plus me-1"></i> Tambah / Daftar User
+              <i className="bi bi-person-plus me-1"></i> Buat Akun Baru
             </button>
           </li>
         </ul>
@@ -194,8 +380,8 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
           <div>
             {loginError && (
               <div className="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3 rounded-3" role="alert">
-                <i className="bi bi-exclamation-triangle-fill"></i>
-                <span>{loginError}</span>
+                <i className="bi bi-exclamation-triangle-fill fs-5"></i>
+                <div style={{ fontSize: '0.85rem' }}>{loginError}</div>
               </div>
             )}
 
@@ -209,7 +395,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="nama@mentaribersastra.id"
+                    placeholder="nama@email.com"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     required
@@ -242,7 +428,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                 {loginLoading ? (
                   <>
                     <span className="spinner-border spinner-border-sm" role="status"></span>
-                    <span>Memverifikasi Akses...</span>
+                    <span>Memverifikasi Akun...</span>
                   </>
                 ) : (
                   <>
@@ -272,13 +458,13 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
           </div>
         )}
 
-        {/* ===================== TAB 2: FORM REGISTRASI USER ===================== */}
+        {/* ===================== TAB 2: FORM REGISTRASI ===================== */}
         {activeTab === 'register' && (
           <div>
             {regNotice && (
-              <div className={`alert alert-${regNotice.type} py-2 small d-flex align-items-center gap-2 mb-3 rounded-3`} role="alert">
-                <i className={`bi ${regNotice.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}`}></i>
-                <span>{regNotice.message}</span>
+              <div className={`alert alert-${regNotice.type} py-2 small d-flex align-items-start gap-2 mb-3 rounded-3`} role="alert">
+                <i className={`bi ${regNotice.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'} fs-5 mt-1`}></i>
+                <div style={{ fontSize: '0.85rem' }}>{regNotice.message}</div>
               </div>
             )}
 
@@ -292,7 +478,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Contoh: Bagus Wicaksono"
+                    placeholder="Nama Lengkap Anda..."
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     required
@@ -309,7 +495,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="email@domain.com"
+                    placeholder="nama@email.com"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                     required
@@ -373,12 +559,12 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                 {regLoading ? (
                   <>
                     <span className="spinner-border spinner-border-sm" role="status"></span>
-                    <span>Mendaftarkan Pengguna...</span>
+                    <span>Mendaftarkan ke Database...</span>
                   </>
                 ) : (
                   <>
                     <i className="bi bi-person-check-fill"></i>
-                    <span>Daftarkan Pengguna Baru</span>
+                    <span>Daftarkan Akun Baru</span>
                   </>
                 )}
               </button>
