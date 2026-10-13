@@ -7,8 +7,11 @@ import {
   testSupabaseConnection,
 } from '../../lib/supabaseClient';
 
+import { UserProfile } from '../../types/database';
+import { INITIAL_USER_PROFILE } from '../../lib/initialData';
+
 interface AdminLoginProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (profile?: UserProfile) => void;
   onBackToHome: () => void;
 }
 
@@ -117,15 +120,17 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
           storageService.setAdminLoggedIn(true);
           // Ambil nama profil dari auth metadata jika ada
           const userName = data.user?.user_metadata?.name || email.split('@')[0];
-          storageService.saveProfile({
+          const userRole = data.user?.user_metadata?.role || 'Pengelola Redaksi';
+          const loggedProfile: UserProfile = {
             id: data.user.id,
             name: userName,
             email: email,
-            role: data.user?.user_metadata?.role || 'Pengelola Redaksi',
+            role: userRole,
             bio: 'Pengguna terverifikasi Supabase Cloud.',
             avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}&backgroundColor=b6e3f4,c0aede,d1d4f9`,
-          });
-          onLoginSuccess();
+          };
+          storageService.saveProfile(loggedProfile);
+          onLoginSuccess(loggedProfile);
           return;
         }
       } catch (err: any) {
@@ -143,22 +148,24 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
 
     if (foundUser) {
       storageService.setAdminLoggedIn(true);
-      storageService.saveProfile({
+      const localProfile: UserProfile = {
         id: foundUser.id,
         name: foundUser.name,
         email: foundUser.email,
         role: foundUser.role,
         bio: `Penulis & kontributor literasi pada Mentari Bersastra.`,
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(foundUser.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`,
-      });
-      onLoginSuccess();
+      };
+      storageService.saveProfile(localProfile);
+      onLoginSuccess(localProfile);
       return;
     }
 
     // 3. Fallback Akun Demo
     if (email === 'admin@mentaribersastra.id' && password === 'admin123456') {
       storageService.setAdminLoggedIn(true);
-      onLoginSuccess();
+      storageService.saveProfile(INITIAL_USER_PROFILE);
+      onLoginSuccess(INITIAL_USER_PROFILE);
       return;
     }
 
@@ -252,7 +259,8 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
 
   const handleQuickDemo = () => {
     storageService.setAdminLoggedIn(true);
-    onLoginSuccess();
+    storageService.saveProfile(INITIAL_USER_PROFILE);
+    onLoginSuccess(INITIAL_USER_PROFILE);
   };
 
   return (

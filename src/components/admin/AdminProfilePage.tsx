@@ -28,6 +28,18 @@ export default function AdminProfilePage({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [notice, setNotice] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
 
+  // Sinkronkan state lokal saat prop profile berubah (misal saat login akun sendiri)
+  React.useEffect(() => {
+    setName(profile.name);
+    setEmail(profile.email);
+    setRole(profile.role);
+    setBio(profile.bio);
+    setAvatarUrl(profile.avatar_url);
+    setWebsite(profile.website || '');
+    setGithub(profile.github || '');
+    setTwitter(profile.twitter || '');
+  }, [profile]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) {

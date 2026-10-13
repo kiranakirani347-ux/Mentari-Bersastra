@@ -13,6 +13,8 @@ import AdminProfilePage from './components/admin/AdminProfilePage';
 import PostFormModal from './components/admin/PostFormModal';
 import CategoryModal from './components/admin/CategoryModal';
 import SupabaseModal from './components/admin/SupabaseModal';
+import { getSupabaseClient, isSupabaseConfigured } from './lib/supabaseClient';
+import { INITIAL_USER_PROFILE } from './lib/initialData';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'post-detail' | 'admin-login' | 'admin-dashboard' | 'admin-profile'>('home');
@@ -43,8 +45,58 @@ export default function App() {
     setCategories(loadedCategories);
     setPosts(loadedPosts);
     setComments(loadedComments);
-    setUserProfile(loadedProfile);
-    setIsAdmin(storageService.isAdminLoggedIn());
+
+    // Sinkronisasi Sesi Supabase Auth atau Session Lokal
+    const initAuthAndProfile = async () => {
+      const client = getSupabaseClient();
+      if (client && isSupabaseConfigured()) {
+        try {
+          const { data: { session } } = await client.auth.getSession();
+          if (session?.user) {
+            setIsAdmin(true);
+            storageService.setAdminLoggedIn(true);
+
+            const email = session.user.email || '';
+            let name = session.user.user_metadata?.name || email.split('@')[0];
+            let role = session.user.user_metadata?.role || 'Pengelola Redaksi';
+            let bio = 'Pengguna terverifikasi Supabase Cloud.';
+            let avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+
+            try {
+              const { data: profileRow } = await client.from('profiles').select('*').eq('id', session.user.id).single();
+              if (profileRow) {
+                if (profileRow.name) name = profileRow.name;
+                if (profileRow.role) role = profileRow.role;
+                if (profileRow.bio) bio = profileRow.bio;
+                if (profileRow.avatar_url) avatar = profileRow.avatar_url;
+              }
+            } catch {
+              // Abaikan jika tabel profiles belum aktif
+            }
+
+            const activeProfile: UserProfile = {
+              id: session.user.id,
+              name,
+              email,
+              role,
+              bio,
+              avatar_url: avatar,
+            };
+            storageService.saveProfile(activeProfile);
+            setUserProfile(activeProfile);
+            return;
+          }
+        } catch (e) {
+          console.warn('Supabase auth getSession notice:', e);
+        }
+      }
+
+      const loggedIn = storageService.isAdminLoggedIn();
+      setIsAdmin(loggedIn);
+      setUserProfile(storageService.getProfile());
+    };
+
+    initAuthAndProfile();
 
     const handleHash = () => {
       const hash = window.location.hash;
@@ -181,15 +233,27 @@ export default function App() {
     setComments(storageService.getComments());
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (profile?: UserProfile) => {
     storageService.setAdminLoggedIn(true);
     setIsAdmin(true);
+    const active = profile || storageService.getProfile();
+    setUserProfile(active);
     navigateTo('admin-dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const client = getSupabaseClient();
+    if (client && isSupabaseConfigured()) {
+      try {
+        await client.auth.signOut();
+      } catch (e) {
+        console.warn('Sign out notice:', e);
+      }
+    }
     storageService.setAdminLoggedIn(false);
+    localStorage.removeItem('mentari_bersastra_profile_v2');
     setIsAdmin(false);
+    setUserProfile(INITIAL_USER_PROFILE);
     navigateTo('home');
   };
 
